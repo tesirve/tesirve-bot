@@ -1,72 +1,38 @@
 import os
-import json
 import telebot
-import requests
 from flask import Flask, request
 from telebot.types import Update
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
-SHEET_ID = '1umS0JFdYXu2f_x5zxzbnKfEf_fDZ7Hn5-Yt_sYQWpqg'
+
+# LISTA FIJA de 100 enlaces (usa los primeros 3 como ejemplo, luego completas)
+ENLACES_PLANTILLAS = {
+    1: "https://drive.google.com/file/d/1TPayTVWU4dMqE14mbYHAbys1t17UGXko/view",
+    2: "https://drive.google.com/file/d/1KurC6cLqy-b5RTP5nOe8-7ixlN12xQvO/view",
+    3: "https://drive.google.com/file/d/1s9dknopKqWe5D_3DZ5LErWfqYqRRtlQz/view",
+    # ... agregar los otros 97 manualmente
+}
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 app = Flask(__name__)
-
-def get_plantilla_url(num):
-    """Obtener enlace directamente de Sheets API"""
-    try:
-        # Obtener JSON de credenciales
-        creds_json = os.environ.get('GOOGLE_CREDS_JSON')
-        creds = json.loads(creds_json)
-        
-        # Obtener token de acceso
-        from google.oauth2 import service_account
-        credentials = service_account.Credentials.from_service_account_info(creds)
-        scoped_credentials = credentials.with_scopes([
-            'https://www.googleapis.com/auth/spreadsheets.readonly'
-        ])
-        
-        # Hacer request directa a Sheets API
-        import google.auth.transport.requests
-        auth_req = google.auth.transport.requests.Request()
-        scoped_credentials.refresh(auth_req)
-        
-        # Leer la fila específica
-        url = f'https://sheets.googleapis.com/v4/spreadsheets/{SHEET_ID}/values/A{num+1}:C{num+1}'
-        headers = {'Authorization': f'Bearer {scoped_credentials.token}'}
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        
-        if 'values' in data:
-            # Columna C es el enlace
-            return data['values'][0][2] if len(data['values'][0]) > 2 else None
-        return None
-        
-    except Exception as e:
-        print(f"Error Sheets API: {e}")
-        return None
 
 @bot.message_handler(regexp='^/plantilla\d{1,3}$')
 def send_plantilla(message):
     try:
         num = int(message.text.replace('/plantilla', ''))
-        if num < 1 or num > 100:
-            bot.reply_to(message, "❌ Solo plantillas 1-100")
-            return
         
-        enlace = get_plantilla_url(num)
-        
-        if enlace:
-            respuesta = f"✅ **Plantilla {num}**\n{enlace}"
+        if num in ENLACES_PLANTILLAS:
+            respuesta = f"✅ **Plantilla {num}**\n{ENLACES_PLANTILLAS[num]}"
             bot.reply_to(message, respuesta, parse_mode='Markdown')
         else:
-            bot.reply_to(message, f"❌ No encontré plantilla {num}")
+            bot.reply_to(message, f"❌ Plantilla {num} no disponible aún")
             
     except Exception as e:
-        bot.reply_to(message, f"❌ Error: {str(e)[:100]}")
+        bot.reply_to(message, f"❌ Error: {str(e)[:50]}")
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    respuesta = "👋 **Bot de Tesirve**\nEscribe: `/plantilla1` a `/plantilla100`"
+    respuesta = "👋 **Bot de Tesirve**\nEscribe: `/plantilla1` a `/plantilla100`\n\n🌐 _tesirve.com_"
     bot.reply_to(message, respuesta, parse_mode='Markdown')
 
 @app.route('/webhook', methods=['POST'])
@@ -80,7 +46,7 @@ def webhook():
 
 @app.route('/')
 def home():
-    return '✅ Bot tesirve.com'
+    return '✅ Bot tesirve.com funcionando'
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
