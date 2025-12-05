@@ -24,7 +24,7 @@ COMANDOS_PLANTILLAS = {
 
 # También mantener diccionario viejo para transición
 ENLACES_PLANTILLAS = {
-    1: "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view?usp=drive_link",
+    1: "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view",
     2: "https://drive.google.com/file/d/1AP39WByiakUXay_aeXpRqF_y3LFZAMxe/view",
     3: "https://drive.google.com/file/d/120m8rK1dRnNnBG3_tSeELPMDLn6P-hj5/view",
     4: "https://drive.google.com/file/d/1icn0Uvk-2RVrc8S1J16jZ3Xk02IExWNI/view",
