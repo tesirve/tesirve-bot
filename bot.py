@@ -8,7 +8,7 @@ TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 # NUEVO: COMANDOS ALEATORIOS CON IDENTIFICADOR P1, P2, P3...
 COMANDOS_PLANTILLAS = {
     # Formato: "P1-XR3F": (número_plantilla, enlace)
-    "P1-XR3F": (1, "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view"),
+    "P1-XR3F": (1, "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view?usp=drive_link"),
     "P2-9RT8": (2, "https://drive.google.com/file/d/1AP39WByiakUXay_aeXpRqF_y3LFZAMxe/view"),
     "P3-KL4M": (3, "https://drive.google.com/file/d/120m8rK1dRnNnBG3_tSeELPMDLn6P-hj5/view"),
     "P4-7D2B": (4, "https://drive.google.com/file/d/1icn0Uvk-2RVrc8S1J16jZ3Xk02IExWNI/view"),
