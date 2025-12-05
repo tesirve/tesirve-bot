@@ -5,10 +5,10 @@ from telebot.types import Update
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-# COMANDOS ALEATORIOS CON IDENTIFICADOR P1, P2, P3...
+# NUEVO: COMANDOS ALEATORIOS CON IDENTIFICADOR P1, P2, P3...
 COMANDOS_PLANTILLAS = {
     # Formato: "P1-XR3F": (número_plantilla, enlace)
-    "P1-XR3F": (1, "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view"),
+    "P1-XR3F": (1, "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view?usp=drive_link"),
     "P2-9RT8": (2, "https://drive.google.com/file/d/1AP39WByiakUXay_aeXpRqF_y3LFZAMxe/view"),
     "P3-KL4M": (3, "https://drive.google.com/file/d/120m8rK1dRnNnBG3_tSeELPMDLn6P-hj5/view"),
     "P4-7D2B": (4, "https://drive.google.com/file/d/1icn0Uvk-2RVrc8S1J16jZ3Xk02IExWNI/view"),
@@ -19,11 +19,12 @@ COMANDOS_PLANTILLAS = {
     "P8-M5K7": (8, "https://drive.google.com/file/d/1og9A-nfT-z0oIsCcrImh2kqK7OX9i-nC/view"),
     "P9-J4R1": (9, "https://drive.google.com/file/d/1gqg0Tcc9rrdt4EXInZSOznhAz5f_qivh/view"),
     "P10-F8T3": (10, "https://drive.google.com/file/d/1QdIpsL33RazRkCN0rE8Xj27DgM7u5OXw/view"),
+    # Continuar hasta P100...
 }
 
 # También mantener diccionario viejo para transición
 ENLACES_PLANTILLAS = {
-    1: "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view",
+    1: "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view?usp=drive_link",
     2: "https://drive.google.com/file/d/1AP39WByiakUXay_aeXpRqF_y3LFZAMxe/view",
     3: "https://drive.google.com/file/d/120m8rK1dRnNnBG3_tSeELPMDLn6P-hj5/view",
     4: "https://drive.google.com/file/d/1icn0Uvk-2RVrc8S1J16jZ3Xk02IExWNI/view",
@@ -33,6 +34,7 @@ ENLACES_PLANTILLAS = {
     8: "https://drive.google.com/file/d/1og9A-nfT-z0oIsCcrImh2kqK7OX9i-nC/view",
     9: "https://drive.google.com/file/d/1gqg0Tcc9rrdt4EXInZSOznhAz5f_qivh/view",
     10: "https://drive.google.com/file/d/1QdIpsL33RazRkCN0rE8Xj27DgM7u5OXw/view",
+    # ... resto igual que antes
 }
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
@@ -71,7 +73,7 @@ def send_plantilla_vieja(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)[:50]}")
 
-# 3. MENSAJE DE BIENVENIDA CON PARÁMETRO
+# 3. NUEVO MENSAJE DE BIENVENIDA PROFESIONAL CON PARÁMETRO
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     # Si viene con parámetro: /start P1-XR3F
@@ -97,7 +99,7 @@ def send_welcome(message):
             except:
                 pass
     
-    # Mensaje normal de bienvenida
+    # Mensaje normal de bienvenida (si no hay parámetro o no es reconocido)
     respuesta = "👋 **¡Hola! Soy el asistente de Tesirve** 🌐\n\n"
     respuesta += "🌱 *¿En qué puedo servirte?*\n"
     respuesta += "• Soporte técnico de plantillas HTML/CSS\n"
