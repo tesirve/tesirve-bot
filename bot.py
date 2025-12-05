@@ -24,7 +24,7 @@ COMANDOS_PLANTILLAS = {
 
 # También mantener diccionario viejo para transición
 ENLACES_PLANTILLAS = {
-    1: "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view",
+    1: "https://drive.google.com/file/d/1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu/view?usp=drive_link",
     2: "https://drive.google.com/file/d/1AP39WByiakUXay_aeXpRqF_y3LFZAMxe/view",
     3: "https://drive.google.com/file/d/120m8rK1dRnNnBG3_tSeELPMDLn6P-hj5/view",
     4: "https://drive.google.com/file/d/1icn0Uvk-2RVrc8S1J16jZ3Xk02IExWNI/view",
@@ -73,9 +73,33 @@ def send_plantilla_vieja(message):
     except Exception as e:
         bot.reply_to(message, f"❌ Error: {str(e)[:50]}")
 
-# 3. NUEVO MENSAJE DE BIENVENIDA PROFESIONAL
+# 3. NUEVO MENSAJE DE BIENVENIDA PROFESIONAL CON PARÁMETRO
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
+    # Si viene con parámetro: /start P1-XR3F
+    if len(message.text.split()) > 1:
+        param = message.text.split()[1]
+        
+        # Si es un código de plantilla como P1-XR3F
+        if param in COMANDOS_PLANTILLAS:
+            num, enlace = COMANDOS_PLANTILLAS[param]
+            respuesta = f"✅ **Plantilla {num}**\n{enlace}\n\n💡 _Ver video tutorial en YouTube_"
+            bot.reply_to(message, respuesta, parse_mode='Markdown')
+            return
+        # Si es plantilla vieja: /start plantilla1
+        elif param.startswith('plantilla'):
+            try:
+                num = int(param.replace('plantilla', ''))
+                if num in ENLACES_PLANTILLAS:
+                    respuesta = f"⚠️ *Sistema antiguo*\n\n"
+                    respuesta += f"**Plantilla {num}**: {ENLACES_PLANTILLAS[num]}\n\n"
+                    respuesta += "_Usa los botones en https://tesirve.com para códigos nuevos_"
+                    bot.reply_to(message, respuesta, parse_mode='Markdown')
+                    return
+            except:
+                pass
+    
+    # Mensaje normal de bienvenida (si no hay parámetro o no es reconocido)
     respuesta = "👋 **¡Hola! Soy el asistente de Tesirve** 🌐\n\n"
     respuesta += "🌱 *¿En qué puedo servirte?*\n"
     respuesta += "• Soporte técnico de plantillas HTML/CSS\n"
@@ -93,7 +117,7 @@ def send_help(message):
     respuesta += "📌 *Comandos disponibles:*\n"
     respuesta += "• `/start` - Mensaje de bienvenida\n"
     respuesta += "• `/ayuda` - Esta información\n"
-    respuesta += "• `/pregunta [texto]` - Próximamente: pregúntame algo\n\n"
+    respuesta += "• `/P1-XR3F` - Descargar plantilla (código específico)\n\n"
     respuesta += "🌐 *Recursos:* https://tesirve.com"
     bot.reply_to(message, respuesta, parse_mode='Markdown')
 
