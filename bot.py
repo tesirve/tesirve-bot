@@ -5,7 +5,7 @@ from telebot.types import Update
 
 TELEGRAM_TOKEN = os.environ.get('TELEGRAM_TOKEN')
 
-# SOLO LAS PRIMERAS 10 PLANTILLAS
+# SOLO 10 PLANTILLAS
 PLANTILLAS = {
     "p1-xr3f": "https://drive.google.com/uc?export=download&id=1b4LDpfC2PXdW2AIwq0Egf-WNacq_kMEu",
     "p2-9rt8": "https://drive.google.com/uc?export=download&id=1AP39WByiakUXay_aeXpRqF_y3LFZAMxe",
@@ -22,46 +22,41 @@ PLANTILLAS = {
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 app = Flask(__name__)
 
-# UN SOLO HANDLER PARA TODO
-@bot.message_handler(func=lambda message: True)
-def handle_all(message):
-    texto = message.text.strip().lower()
+# Handler para comandos /p1-xr3f, /p2-9rt8, etc.
+@bot.message_handler(commands=['p1-xr3f', 'p2-9rt8', 'p3-kl4m', 'p4-7d2b', 'p5-v6n1', 
+                               'p6-a3x8', 'p7-b9c2', 'p8-m5k7', 'p9-j4r1', 'p10-f8t3'])
+def send_plantilla(message):
+    comando = message.text[1:]  # Quita el /
     
-    # Si es un comando con /p1-xr3f
-    if texto.startswith('/'):
-        comando = texto[1:]  # Quitar el /
+    if comando in PLANTILLAS:
+        enlace = PLANTILLAS[comando]
+        bot.reply_to(message, f"🔗 {enlace}")
+    else:
+        bot.reply_to(message, "Error: código no encontrado")
+
+# Handler para /start
+@bot.message_handler(commands=['start'])
+def send_start(message):
+    # Si es /start p1-xr3f
+    if ' ' in message.text:
+        partes = message.text.split()
+        codigo = partes[1].lower()
         
-        if comando in PLANTILLAS:
-            enlace = PLANTILLAS[comando]
-            respuesta = f"✅ **Enlace de descarga:**\n\n{enlace}"
-            bot.reply_to(message, respuesta, parse_mode='Markdown')
-            return
-    
-    # Si es /start con parámetro
-    if texto.startswith('/start '):
-        partes = texto.split()
-        if len(partes) > 1:
-            codigo = partes[1].lower()
-            if codigo in PLANTILLAS:
-                enlace = PLANTILLAS[codigo]
-                respuesta = f"✅ **Enlace de descarga:**\n\n{enlace}"
-                bot.reply_to(message, respuesta, parse_mode='Markdown')
-                return
-    
-    # Si es solo el código sin / (p1-xr3f)
-    if texto in PLANTILLAS:
-        enlace = PLANTILLAS[texto]
-        respuesta = f"✅ **Enlace de descarga:**\n\n{enlace}"
-        bot.reply_to(message, respuesta, parse_mode='Markdown')
-        return
-    
-    # Si es solo /start
-    if texto == '/start':
-        bot.reply_to(message, "👋 Envía /p1-xr3f para descargar.")
-        return
-    
-    # Para cualquier otra cosa
-    bot.reply_to(message, "❌ Envía un código como /p1-xr3f")
+        if codigo in PLANTILLAS:
+            enlace = PLANTILLAS[codigo]
+            bot.reply_to(message, f"🔗 {enlace}")
+        else:
+            bot.reply_to(message, "Error: código no válido")
+    else:
+        # Solo /start
+        bot.reply_to(message, "Envía /p1-xr3f para descargar")
+
+# Handler para texto simple (p1-xr3f sin /)
+@bot.message_handler(func=lambda m: m.text.lower() in PLANTILLAS)
+def send_plantilla_simple(message):
+    codigo = message.text.lower()
+    enlace = PLANTILLAS[codigo]
+    bot.reply_to(message, f"🔗 {enlace}")
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
@@ -74,9 +69,8 @@ def webhook():
 
 @app.route('/')
 def home():
-    return '✅ Bot funcionando'
+    return 'Bot funcionando'
 
 if __name__ == '__main__':
-    print("🤖 Bot iniciado")
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
