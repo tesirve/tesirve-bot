@@ -22,40 +22,45 @@ PLANTILLAS = {
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 app = Flask(__name__)
 
-# 1. Cuando alguien usa /start con parámetro
-@bot.message_handler(commands=['start'])
-def handle_start(message):
-    texto = message.text
+# UN SOLO HANDLER PARA TODO
+@bot.message_handler(func=lambda message: True)
+def handle_all(message):
+    texto = message.text.strip().lower()
     
-    # Si es /start p1-xr3f
-    if ' ' in texto:
-        partes = texto.split()
-        codigo = partes[1].lower()
+    # Si es un comando con /p1-xr3f
+    if texto.startswith('/'):
+        comando = texto[1:]  # Quitar el /
         
-        if codigo in PLANTILLAS:
-            enlace = PLANTILLAS[codigo]
+        if comando in PLANTILLAS:
+            enlace = PLANTILLAS[comando]
             respuesta = f"✅ **Enlace de descarga:**\n\n{enlace}"
             bot.reply_to(message, respuesta, parse_mode='Markdown')
-        else:
-            bot.reply_to(message, "❌ Código no válido.")
+            return
     
-    # Si es solo /start
-    else:
-        bot.reply_to(message, "👋 Envía /p1-xr3f para descargar.")
-
-# 2. Cuando alguien usa /p1-xr3f, /p2-9rt8, etc.
-@bot.message_handler(func=lambda message: message.text.startswith('/') and message.text[1:].lower() in PLANTILLAS)
-def handle_plantilla(message):
-    texto = message.text[1:].lower()  # Quita el /
+    # Si es /start con parámetro
+    if texto.startswith('/start '):
+        partes = texto.split()
+        if len(partes) > 1:
+            codigo = partes[1].lower()
+            if codigo in PLANTILLAS:
+                enlace = PLANTILLAS[codigo]
+                respuesta = f"✅ **Enlace de descarga:**\n\n{enlace}"
+                bot.reply_to(message, respuesta, parse_mode='Markdown')
+                return
     
+    # Si es solo el código sin / (p1-xr3f)
     if texto in PLANTILLAS:
         enlace = PLANTILLAS[texto]
         respuesta = f"✅ **Enlace de descarga:**\n\n{enlace}"
         bot.reply_to(message, respuesta, parse_mode='Markdown')
-
-# 3. Para cualquier otro mensaje
-@bot.message_handler(func=lambda message: True)
-def handle_other(message):
+        return
+    
+    # Si es solo /start
+    if texto == '/start':
+        bot.reply_to(message, "👋 Envía /p1-xr3f para descargar.")
+        return
+    
+    # Para cualquier otra cosa
     bot.reply_to(message, "❌ Envía un código como /p1-xr3f")
 
 @app.route('/webhook', methods=['POST'])
@@ -72,5 +77,6 @@ def home():
     return '✅ Bot funcionando'
 
 if __name__ == '__main__':
+    print("🤖 Bot iniciado")
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
