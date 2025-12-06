@@ -109,7 +109,7 @@ COMANDOS_PLANTILLAS = {
     "P100-K5J2": (100, "https://drive.google.com/uc?export=download&id=1LTS8ljrBztvkJNzgdx6fW5_HylLRTuCF")
 }
 
-# Diccionario viejo para compatibilidad (basado en números)
+# También mantener diccionario viejo para transición
 ENLACES_PLANTILLAS = {num: enlace for comando, (num, enlace) in COMANDOS_PLANTILLAS.items()}
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
@@ -123,14 +123,7 @@ def send_plantilla_nueva(message):
         
         if comando in COMANDOS_PLANTILLAS:
             num, enlace = COMANDOS_PLANTILLAS[comando]
-            # Mensaje mejorado con instrucciones claras
-            respuesta = f"✅ **Plantilla {num} - Descarga Directa**\n\n"
-            respuesta += f"🔗 *Enlace:* {enlace}\n\n"
-            respuesta += "📋 *Instrucciones:*\n"
-            respuesta += "1. Haz clic en el enlace arriba\n"
-            respuesta += "2. Se descargará automáticamente el archivo ZIP\n"
-            respuesta += "3. Si aparece advertencia de Google, haz clic en 'Descargar de todos modos'\n\n"
-            respuesta += "🎬 *Video tutorial:* https://youtube.com/tesirve"
+            respuesta = f"✅ **Plantilla {num}**\n{enlace}\n\n💡 _Recuerda ver el video tutorial en YouTube_"
             bot.reply_to(message, respuesta, parse_mode='Markdown')
         else:
             bot.reply_to(message, "❌ Código no válido. Usa los botones de https://tesirve.com")
@@ -145,10 +138,9 @@ def send_plantilla_vieja(message):
         num = int(message.text.replace('/plantilla', ''))
         
         if num in ENLACES_PLANTILLAS:
-            respuesta = f"⚠️ *Sistema antiguo detectado*\n\n"
+            respuesta = f"⚠️ *Sistema antiguo*\n\n"
             respuesta += f"**Plantilla {num}**: {ENLACES_PLANTILLAS[num]}\n\n"
-            respuesta += "_Usa los códigos nuevos en https://tesirve.com_\n"
-            respuesta += "_Ejemplo: /P1-XR3F en lugar de /plantilla1_"
+            respuesta += "_Usa los botones en https://tesirve.com para códigos nuevos_"
             bot.reply_to(message, respuesta, parse_mode='Markdown')
         else:
             bot.reply_to(message, f"❌ Plantilla {num} no disponible")
@@ -166,9 +158,7 @@ def send_welcome(message):
         # Si es un código de plantilla como P1-XR3F
         if param in COMANDOS_PLANTILLAS:
             num, enlace = COMANDOS_PLANTILLAS[param]
-            respuesta = f"✅ **Plantilla {num} - Descarga Directa**\n\n"
-            respuesta += f"🔗 *Enlace:* {enlace}\n\n"
-            respuesta += "💡 *Consejo:* El archivo se descargará automáticamente"
+            respuesta = f"✅ **Plantilla {num}**\n{enlace}\n\n💡 _Ver video tutorial en YouTube_"
             bot.reply_to(message, respuesta, parse_mode='Markdown')
             return
         # Si es plantilla vieja: /start plantilla1
@@ -176,9 +166,9 @@ def send_welcome(message):
             try:
                 num = int(param.replace('plantilla', ''))
                 if num in ENLACES_PLANTILLAS:
-                    respuesta = f"⚠️ *Sistema antiguo detectado*\n\n"
+                    respuesta = f"⚠️ *Sistema antiguo*\n\n"
                     respuesta += f"**Plantilla {num}**: {ENLACES_PLANTILLAS[num]}\n\n"
-                    respuesta += "_Usa los códigos nuevos en https://tesirve.com_"
+                    respuesta += "_Usa los botones en https://tesirve.com para códigos nuevos_"
                     bot.reply_to(message, respuesta, parse_mode='Markdown')
                     return
             except:
@@ -187,12 +177,11 @@ def send_welcome(message):
     # Mensaje normal de bienvenida (si no hay parámetro o no es reconocido)
     respuesta = "👋 **¡Hola! Soy el asistente de Tesirve** 🌐\n\n"
     respuesta += "🌱 *¿En qué puedo servirte?*\n"
-    respuesta += "• Descarga de plantillas HTML/CSS\n"
-    respuesta += "• Soporte técnico básico\n"
-    respuesta += "• Ayuda con código web\n\n"
+    respuesta += "• Soporte técnico de plantillas HTML/CSS\n"
+    respuesta += "• Preguntas sobre diseño web\n"
+    respuesta += "• Ayuda con código básico\n\n"
     respuesta += "📁 *Para descargar plantillas:*\n"
-    respuesta += "Usa comandos como: /P1-XR3F\n"
-    respuesta += "O visita: https://tesirve.com\n\n"
+    respuesta += "Visita https://tesirve.com y usa los botones de descarga.\n\n"
     respuesta += "💬 *Pregúntame lo que necesites...*"
     bot.reply_to(message, respuesta, parse_mode='Markdown')
 
@@ -203,29 +192,9 @@ def send_help(message):
     respuesta += "📌 *Comandos disponibles:*\n"
     respuesta += "• `/start` - Mensaje de bienvenida\n"
     respuesta += "• `/ayuda` - Esta información\n"
-    respuesta += "• `/P1-XR3F` - Descargar plantilla (ejemplo)\n\n"
-    respuesta += "📁 *Descargas directas:*\n"
-    respuesta += "Todos los enlaces son de descarga directa desde Google Drive.\n\n"
+    respuesta += "• `/P1-XR3F` - Descargar plantilla (código específico)\n\n"
     respuesta += "🌐 *Recursos:* https://tesirve.com"
     bot.reply_to(message, respuesta, parse_mode='Markdown')
-
-# 5. Manejar mensajes de texto normales
-@bot.message_handler(func=lambda message: True)
-def handle_all_messages(message):
-    # Si el mensaje parece un código de plantilla (sin /)
-    texto = message.text.upper().strip()
-    if texto in COMANDOS_PLANTILLAS:
-        num, enlace = COMANDOS_PLANTILLAS[texto]
-        respuesta = f"⚠️ *Te falta la barra /*\n\n"
-        respuesta += f"Usa: `/{texto}`\n\n"
-        respuesta += f"O haz clic aquí: /{texto}"
-        bot.reply_to(message, respuesta, parse_mode='Markdown')
-    else:
-        # Respuesta para otros mensajes
-        respuesta = "🤖 *Bot Tesirve*\n\n"
-        respuesta += "Escribe `/ayuda` para ver los comandos disponibles.\n"
-        respuesta += "O usa un código como `/P1-XR3F` para descargar."
-        bot.reply_to(message, respuesta, parse_mode='Markdown')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
