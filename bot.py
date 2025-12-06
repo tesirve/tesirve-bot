@@ -112,59 +112,45 @@ PLANTILLAS = {
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 app = Flask(__name__)
 
-# Handler para comandos /p1-xr3f, /p2-9rt8, etc.
-@bot.message_handler(commands=['p1-xr3f', 'p2-9rt8', 'p3-kl4m', 'p4-7d2b', 'p5-v6n1', 
-                               'p6-a3x8', 'p7-b9c2', 'p8-m5k7', 'p9-j4r1', 'p10-f8t3',
-                               'p11-d4h7', 'p12-q2s9', 'p13-l6p4', 'p14-w5t1', 'p15-c8r2',
-                               'p16-n3m9', 'p17-y7k5', 'p18-e1g6', 'p19-h9j3', 'p20-z4v8',
-                               'p21-u2x7', 'p22-s5n6', 'p23-p8b1', 'p24-t3k9', 'p25-r6f4',
-                               'p26-i7c2', 'p27-o9d5', 'p28-g1h8', 'p29-a5w3', 'p30-m2j6',
-                               'p31-b4q7', 'p32-v9l1', 'p33-k8p2', 'p34-x3s4', 'p35-f6t5',
-                               'p36-d7r9', 'p37-j2n8', 'p38-h1c3', 'p39-l5g7', 'p40-z8m4',
-                               'p41-q9x2', 'p42-w3f6', 'p43-c4b5', 'p44-e7v1', 'p45-t8k9',
-                               'p46-n2p6', 'p47-r1s3', 'p48-u5d4', 'p49-y6h2', 'p50-o3j7',
-                               'p51-i9g8', 'p52-a2l5', 'p53-b8m1', 'p54-s4x6', 'p55-f5t3',
-                               'p56-d9r7', 'p57-g2c4', 'p58-v1n8', 'p59-p7k5', 'p60-q6h9',
-                               'p61-m3b2', 'p62-w4f1', 'p63-j8l6', 'p64-t2s7', 'p65-r5x3',
-                               'p66-n9d4', 'p67-k1g8', 'p68-h7p2', 'p69-e3m5', 'p70-c6v9',
-                               'p71-z2t1', 'p72-u8b4', 'p73-y4f6', 'p74-o1s3', 'p75-l7j8',
-                               'p76-i5c9', 'p77-a9n2', 'p78-b3r1', 'p79-d8k5', 'p80-q4x7',
-                               'p81-m6h3', 'p82-s1f9', 'p83-p2d6', 'p84-r7l4', 'p85-v5t2',
-                               'p86-j3b8', 'p87-n4g1', 'p88-t9m7', 'p89-c2s5', 'p90-h8x6',
-                               'p91-e4r3', 'p92-w1k9', 'p93-f7p2', 'p94-z5d8', 'p95-u9l4',
-                               'p96-y2b6', 'p97-o8c1', 'p98-l3n7', 'p99-i6s9', 'p100-k5j2'])
-def send_plantilla(message):
-    comando = message.text[1:]  # Quita el /
+# UN SOLO HANDLER PARA TODO
+@bot.message_handler(func=lambda message: True)
+def handle_all(message):
+    texto = message.text.strip().lower()
     
-    if comando in PLANTILLAS:
-        enlace = PLANTILLAS[comando]
-        bot.reply_to(message, f"🔗 {enlace}")
-    else:
-        bot.reply_to(message, "Error: código no encontrado")
-
-# Handler para /start
-@bot.message_handler(commands=['start'])
-def send_start(message):
-    # Si es /start p1-xr3f
-    if ' ' in message.text:
-        partes = message.text.split()
-        codigo = partes[1].lower()
+    # Si es un comando con / (ej: /p1-xr3f)
+    if texto.startswith('/'):
+        comando = texto[1:]  # Quitar el /
         
-        if codigo in PLANTILLAS:
-            enlace = PLANTILLAS[codigo]
-            bot.reply_to(message, f"🔗 {enlace}")
-        else:
-            bot.reply_to(message, "Error: código no válido")
-    else:
-        # Solo /start
-        bot.reply_to(message, "Envía /p1-xr3f para descargar")
-
-# Handler para texto simple (p1-xr3f sin /)
-@bot.message_handler(func=lambda m: m.text.lower() in PLANTILLAS)
-def send_plantilla_simple(message):
-    codigo = message.text.lower()
-    enlace = PLANTILLAS[codigo]
-    bot.reply_to(message, f"🔗 {enlace}")
+        if comando in PLANTILLAS:
+            enlace = PLANTILLAS[comando]
+            respuesta = f"Plantilla {comando.upper()}\n\n🔗 {enlace}"
+            bot.reply_to(message, respuesta, parse_mode='Markdown')
+            return
+    
+    # Si es /start con parámetro (ej: /start p1-xr3f)
+    if texto.startswith('/start '):
+        partes = texto.split()
+        if len(partes) > 1:
+            codigo = partes[1]
+            if codigo in PLANTILLAS:
+                enlace = PLANTILLAS[codigo]
+                respuesta = f"Plantilla {codigo.upper()}\n\n🔗 {enlace}"
+                bot.reply_to(message, respuesta, parse_mode='Markdown')
+                return
+    
+    # Si es solo el código sin / (ej: p1-xr3f)
+    if texto in PLANTILLAS:
+        enlace = PLANTILLAS[texto]
+        respuesta = f"Plantilla {texto.upper()}\n\n🔗 {enlace}"
+        bot.reply_to(message, respuesta, parse_mode='Markdown')
+        return
+    
+    # Si es solo /start
+    if texto == '/start':
+        bot.reply_to(message, "Envía /p1-xr3f para descargar plantillas")
+        return
+    
+    # Si no es ninguna de las anteriores, no responder (mantiene el silencio)
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
