@@ -138,7 +138,9 @@ def send_plantilla(message):
     
     if comando in PLANTILLAS:
         enlace = PLANTILLAS[comando]
-        bot.reply_to(message, f"🔗 {enlace}")
+        # SOLO AGREGAR IDENTIFICADOR - NADA MÁS
+        respuesta = f"Plantilla {comando.upper()}\n\n🔗 {enlace}"
+        bot.reply_to(message, respuesta, parse_mode='Markdown')
     else:
         bot.reply_to(message, "Error: código no encontrado")
 
@@ -152,7 +154,9 @@ def send_start(message):
         
         if codigo in PLANTILLAS:
             enlace = PLANTILLAS[codigo]
-            bot.reply_to(message, f"🔗 {enlace}")
+            # SOLO AGREGAR IDENTIFICADOR - NADA MÁS
+            respuesta = f"Plantilla {codigo.upper()}\n\n🔗 {enlace}"
+            bot.reply_to(message, respuesta, parse_mode='Markdown')
         else:
             bot.reply_to(message, "Error: código no válido")
     else:
@@ -164,7 +168,9 @@ def send_start(message):
 def send_plantilla_simple(message):
     codigo = message.text.lower()
     enlace = PLANTILLAS[codigo]
-    bot.reply_to(message, f"🔗 {enlace}")
+    # SOLO AGREGAR IDENTIFICADOR - NADA MÁS
+    respuesta = f"Plantilla {codigo.upper()}\n\n🔗 {enlace}"
+    bot.reply_to(message, respuesta, parse_mode='Markdown')
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
